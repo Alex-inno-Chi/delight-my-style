@@ -1,0 +1,113 @@
+import { Link } from 'react-router-dom';
+import { Minus, Plus, X, ShoppingBag } from 'lucide-react';
+import { Layout } from '@/components/layout/Layout';
+import { useCart } from '@/contexts/CartContext';
+import { Button } from '@/components/ui/button';
+
+export default function Cart() {
+  const { items, updateQuantity, removeFromCart, totalPrice, clearCart } = useCart();
+
+  if (items.length === 0) {
+    return (
+      <Layout>
+        <div className="container py-24 text-center">
+          <ShoppingBag className="h-16 w-16 mx-auto mb-6 text-muted-foreground" />
+          <h1 className="font-serif text-2xl mb-4">Your bag is empty</h1>
+          <p className="text-muted-foreground mb-8">Looks like you haven't added anything yet.</p>
+          <Button asChild>
+            <Link to="/products">Continue Shopping</Link>
+          </Button>
+        </div>
+      </Layout>
+    );
+  }
+
+  return (
+    <Layout>
+      <div className="container py-12">
+        <h1 className="font-serif text-4xl font-semibold mb-8">Shopping Bag</h1>
+
+        <div className="grid lg:grid-cols-3 gap-12">
+          {/* Cart Items */}
+          <div className="lg:col-span-2 space-y-6">
+            {items.map((item) => (
+              <div 
+                key={`${item.product.id}-${item.size}-${item.color}`}
+                className="flex gap-6 pb-6 border-b"
+              >
+                <div className="w-24 h-32 bg-secondary/50 flex-shrink-0">
+                  <img
+                    src={item.product.images[0]}
+                    alt={item.product.name}
+                    className="h-full w-full object-cover"
+                  />
+                </div>
+                <div className="flex-1 flex flex-col">
+                  <div className="flex justify-between">
+                    <div>
+                      <h3 className="font-medium">{item.product.name}</h3>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        {item.size} / {item.color}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => removeFromCart(item.product.id, item.size, item.color)}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="h-5 w-5" />
+                    </button>
+                  </div>
+                  <div className="mt-auto flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => updateQuantity(item.product.id, item.size, item.color, item.quantity - 1)}
+                        className="p-1 border hover:bg-secondary transition-colors"
+                      >
+                        <Minus className="h-3 w-3" />
+                      </button>
+                      <span className="w-8 text-center text-sm">{item.quantity}</span>
+                      <button
+                        onClick={() => updateQuantity(item.product.id, item.size, item.color, item.quantity + 1)}
+                        className="p-1 border hover:bg-secondary transition-colors"
+                      >
+                        <Plus className="h-3 w-3" />
+                      </button>
+                    </div>
+                    <p className="font-medium">${item.product.price * item.quantity}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Order Summary */}
+          <div className="lg:col-span-1">
+            <div className="bg-secondary/30 p-6">
+              <h2 className="font-serif text-xl font-semibold mb-6">Order Summary</h2>
+              <div className="space-y-4 mb-6">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span>${totalPrice}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Shipping</span>
+                  <span>Calculated at checkout</span>
+                </div>
+              </div>
+              <div className="border-t pt-4 mb-6">
+                <div className="flex justify-between font-medium">
+                  <span>Total</span>
+                  <span>${totalPrice}</span>
+                </div>
+              </div>
+              <Button className="w-full mb-3">Proceed to Checkout</Button>
+              <Button variant="outline" className="w-full" onClick={clearCart}>
+                Clear Bag
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Layout>
+  );
+}
