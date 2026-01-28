@@ -32,25 +32,20 @@ export default function Cart() {
       // Get the current session token
       const { data: { session }, error: sessionError } = await supabase.auth.getSession();
 
-      console.log('Session:', session ? 'exists' : 'null');
-      console.log('Session error:', sessionError);
 
       if (!session) {
         throw new Error('No active session');
       }
 
-      console.log('Calling Edge Function for user:', user.id);
 
       // Get the current session to get the access token
       const { data: sessionData } = await supabase.auth.getSession();
-      console.log('Current session:', sessionData.session ? 'exists' : 'missing');
 
       if (!sessionData.session) {
         throw new Error('No active session');
       }
 
       const accessToken = sessionData.session.access_token;
-      console.log('Access token:', accessToken ? 'present' : 'missing');
 
       // Call the Edge Function using Supabase SDK with explicit Authorization header
       const { data, error } = await supabase.functions.invoke('send-checkout-email', {
@@ -73,7 +68,6 @@ export default function Cart() {
         },
       });
 
-      console.log('Edge Function response:', { data, error });
 
       if (error) {
         console.error('Edge Function error details:', {

@@ -32,11 +32,9 @@ serve(async (req) => {
   }
 
   try {
-    console.log('Function invoked with verify_jwt=false')
 
     // Parse request body first (can only be read once!)
     const { items, totalPrice, userId }: EmailRequest = await req.json()
-    console.log('Request body parsed:', { userId, itemCount: items.length, totalPrice })
 
     // Create Supabase client with SERVICE_ROLE_KEY to bypass RLS
     const supabaseClient = createClient(
@@ -44,7 +42,6 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
-    console.log('Fetching user profile for:', userId)
 
     // Get user profile
     const { data: profile, error: profileError } = await supabaseClient
@@ -53,10 +50,7 @@ serve(async (req) => {
       .eq('user_id', userId)
       .single()
 
-    console.log('Profile fetch result:', { profile, error: profileError?.message })
-
     if (profileError || !profile) {
-      console.log('Profile not found for user:', userId)
       return new Response(
         JSON.stringify({ error: 'User profile not found' }),
         {
@@ -70,7 +64,6 @@ serve(async (req) => {
     const userEmail = profile.email
 
     if (!userEmail) {
-      console.log('No email found for user')
       return new Response(
         JSON.stringify({ error: 'User email not found' }),
         {
@@ -80,7 +73,6 @@ serve(async (req) => {
       )
     }
 
-    console.log('User email:', userEmail)
 
     // For testing: Resend only allows sending to verified email in test mode
     // In production, you would send to userEmail after verifying your domain
