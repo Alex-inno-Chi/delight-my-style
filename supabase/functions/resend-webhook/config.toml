@@ -1,0 +1,4 @@
+# Disable JWT verification for webhook endpoint
+# Resend webhooks don't include authorization headers
+verify_jwt = false
+

@@ -171,7 +171,7 @@ serve(async (req) => {
               </div>
 
               <!-- Tracking pixel -->
-              <img src="${Deno.env.get('SUPABASE_URL')}/functions/v1/track-email-open?id=${emailId}" width="1" height="1" style="display:none" alt="" />
+              <img src="${Deno.env.get('SUPABASE_URL')}/functions/v1/track-email-open?id=${emailId}&t=${Date.now()}" width="1" height="1" style="display:none" alt="" />
             </body>
           </html>
         `,
@@ -184,11 +184,16 @@ serve(async (req) => {
       throw new Error(data.message || 'Failed to send email')
     }
 
+    // Extract Resend email ID from response
+    const resendEmailId = data.id // Resend returns { id: "xxx", ... }
+    console.log('Email sent via Resend. Email ID:', resendEmailId)
+
     // Save email log to database
     const { error: logError } = await supabaseClient
       .from('email_logs')
       .insert({
         email_id: emailId,
+        resend_email_id: resendEmailId,
         user_id: userId,
         recipient_email: recipientEmail,
         recipient_name: userName,
